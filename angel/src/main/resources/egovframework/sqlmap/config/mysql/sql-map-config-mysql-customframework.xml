@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+<!-- PROGRAM_FILE_NM + SQL + DB.xml -->
+<sqlMapConfig>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/prm/progrmManage_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/bbs/bbsMaster/bbsMaster_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/bbs/bbsNtt/bbsNtt_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/bbs/bbsAnswer/bbsAnswer_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/code/clCd/clCd_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/code/cmmnCd/cmmnCd_SQL_Mysql.xml"/>
+    <sqlMap resource="egovframework/sqlmap/customframework/com/app/code/detailCd/detailCd_SQL_Mysql.xml"/>
+</sqlMapConfig>

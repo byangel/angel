@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+
+
+<sqlMap namespace="Product">
+	<typeAlias alias="bbsMasterVo" type="customframework.com.app.bbs.bbsMaster.service.BbsMasterVo" />
+	
+	<sql id="bbsMasterDao.select">
+		SELECT   bbs_id
+				,bbs_nm
+				,bbs_dc
+				,answer_use_at
+				,bbs_ty_cd
+				,reply_use_at
+				,file_atch_use_at
+				,atch_posbl_co
+				,atch_posbl_mg
+				,regist_dt
+				,register_id
+				,updt_dt
+				,updusr_id
+		FROM COMT_BBS_MASTER
+	</sql>
+	
+	<sql id="bbsMasterDao.where">
+		<dynamic prepend="where">
+			<isNotEmpty property="searchCondition" >
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+			   		(   bbs_nm            LIKE  '%'||#bbs_nm#||'%'
+			   		 OR bbs_dc            LIKE  '%'||#bbs_dc#||'%'
+			   		)
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		<isNotEmpty property="sortField">
+				   	 ORDER BY $sortField$
+				   	 <isNotEmpty property="oderType">
+				   	 	$oderType$
+				   	 </isNotEmpty>
+		</isNotEmpty>
+		<isEmpty property="sortField">
+			ORDER BY regist_dt DESC
+		</isEmpty>
+	</sql>
+	
+	<!-- INSERT -->
+	<insert id="bbsMasterDao.create" parameterClass="bbsMasterVo" >
+		INSERT INTO COMT_BBS_MASTER( bbs_id
+									,bbs_nm
+									,bbs_dc
+									,answer_use_at
+									,bbs_ty_cd
+									,reply_use_at
+									,file_atch_use_at
+									,atch_posbl_co
+									,atch_posbl_mg
+									,regist_dt
+									,register_id
+									,updt_dt
+									,updusr_id )VALUES( #bbs_id#
+															,#bbs_nm#
+															,#bbs_dc#
+															,#answer_use_at#
+															,#bbs_ty_cd#
+															,#reply_use_at#
+															,#file_atch_use_at#
+															,#atch_posbl_co#
+															,#atch_posbl_mg#
+															,SYSDATE
+															,#loginId#
+															,SYSDATE
+															,#loginId#)
+	</insert>
+	
+	<!-- UPDATE -->
+	<update id="bbsMasterDao.update" parameterClass="bbsMasterVo" >
+		<![CDATA[
+		UPDATE COMT_BBS_MASTER SET  bbs_nm           = #bbs_nm#          
+									,bbs_dc           = #bbs_dc#          
+									,answer_use_at    = #answer_use_at#   
+									,bbs_ty_cd        = #bbs_ty_cd#       
+									,reply_use_at     = #reply_use_at#    
+									,file_atch_use_at = #file_atch_use_at#
+									,atch_posbl_co    = #atch_posbl_co#   
+									,atch_posbl_mg    = #atch_posbl_mg#   
+									,updt_dt     = SYSDATE           
+									,updusr_id   = #loginId#      
+		WHERE bbs_id = #bbs_id#	
+		]]>
+	</update>
+	
+	<!-- READ -->
+	<select id="bbsMasterDao.read" resultClass="bbsMasterVo" parameterClass="bbsMasterVo">
+		<include refid="bbsMasterDao.select"/>
+		WHERE bbs_id = #bbs_id#	
+	</select> 
+	
+	<!-- SELECT LIST -->
+	<select id="bbsMasterDao.list"  resultClass="bbsMasterVo" parameterClass="bbsMasterVo">
+		SELECT * FROM (SELECT rownum rn, ALL_LIST.*  FROM (
+							<include refid="bbsMasterDao.select"/>
+							<include refid="bbsMasterDao.where"/>	
+						)ALL_LIST ) 
+		<isNotEqual property="pageIndex" compareValue="0">
+			WHERE rn BETWEEN #firstIndex# + 1 AND #firstIndex# + #recordCountPerPage#
+		</isNotEqual>
+	</select>
+	
+	
+	<select id="bbsMasterDao.totalCount" resultClass="java.lang.Integer" parameterClass="bbsMasterVo">
+		SELECT count(*) FROM COMT_BBS_MASTER 
+		 <include refid="bbsMasterDao.where"/>	
+	</select>
+	
+	<!-- DELETE -->
+	<delete id="bbsMasterDao.delete"  parameterClass="bbsMasterVo" >
+		DELETE FROM COMT_BBS_MASTER 
+		 WHERE bbs_id = #bbs_id#	
+	</delete>
+	                                         
+</sqlMap>

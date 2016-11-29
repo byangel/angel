@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Product">
+
+	<typeAlias alias="progrmManageVo" type="customframework.com.app.prm.service.ProgrmManageVo" />
+	
+	<sql id="progrmManageDao.select">
+		SELECT  progrm_id
+			   ,progrm_nm
+			   ,progrm_stre_path
+			   ,progrm_dc
+			   ,progrm_url
+			   ,progrm_cn
+			   ,progrm_ty
+		FROM COMT_PROGRM_MANAGE
+	</sql>
+	
+	<insert id="progrmManageDao.create" parameterClass="progrmManageVo" >
+		INSERT INTO COMT_PROGRM_MANAGE(   progrm_id
+			   						   ,progrm_nm
+									   ,progrm_stre_path
+									   ,progrm_dc
+									   ,progrm_url
+									   ,progrm_cn
+									   ,progrm_ty) values(  #progrm_id#
+			   											   ,#progrm_nm#
+														   ,#progrm_stre_path#
+														   ,#progrm_dc#
+														   ,#progrm_url#
+														   ,#progrm_cn#
+														   ,#progrm_ty#)
+	</insert> 
+	
+	
+	
+	<update id="progrmManageDao.update" parameterClass="progrmManageVo" >
+		UPDATE COMT_PROGRM_MANAGE SET  progrm_nm   	  = #progrm_nm#
+									,progrm_stre_path = #progrm_stre_path#
+								    ,progrm_dc        = #progrm_dc#
+								    ,progrm_url       = #progrm_url#
+								    ,progrm_cn        = #progrm_cn#
+								    ,progrm_ty        = #progrm_ty#
+		WHERE progrm_id = #progrm_id#	 	
+	</update>
+	
+	<select id="progrmManageDao.read" resultClass="progrmManageVo" parameterClass="progrmManageVo">
+		<include refid="progrmManageDao.select"/>
+		WHERE progrm_id = #progrm_id# 
+	</select> 
+	
+	<!-- 	
+	1. oracle 버전
+	Ex) search_column like '%'||#parameter_name#||'%' 
+	2. myssql 버전
+	Ex) search_column like concat('%', #parameter_name#, '%')
+	 -->
+	<sql id="progrmManageDao.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="searchCondition" >
+				
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+			   		(   progrm_id   LIKE   '%$searchKeyword$%' 
+			   		 OR progrm_dc   LIKE   '%$searchKeyword$%'  
+			   		 OR progrm_url  LIKE   '%$searchKeyword$%' 
+			   		 OR progrm_nm  LIKE   '%$searchKeyword$%' 
+			   		 OR progrm_stre_path  LIKE   '%$searchKeyword$%' 
+			   		)
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		
+		<isNotEmpty property="sortField">
+				   	 ORDER BY $sortField$ $oderType$ 
+				   	 <isNotEmpty property="oderType">
+				   	 	$oderType$
+				   	 </isNotEmpty>
+		</isNotEmpty>
+	</sql>
+	
+	<select id="progrmManageDao.totalCount" resultClass="int" parameterClass="progrmManageVo">
+		SELECT count(*) FROM COMT_PROGRM_MANAGE 
+		 <include refid="progrmManageDao.where"/>	
+	</select>
+	
+	<select id="progrmManageDao.list"  resultClass="progrmManageVo" parameterClass="progrmManageVo">
+  
+       SELECT * FROM (SELECT rownum rn, ALL_LIST.*  FROM (
+						       <include refid="progrmManageDao.select"/>
+							   <include refid="progrmManageDao.where"/>	
+	   				  )ALL_LIST ) 
+	   WHERE rn BETWEEN #firstIndex# + 1 AND #firstIndex# + #recordCountPerPage#
+      
+	</select>
+	 
+	<delete id="progrmManageDao.delete"  parameterClass="progrmManageVo" >
+		DELETE FROM COMT_PROGRM_MANAGE WHERE progrm_id = #progrm_id#
+	</delete>
+
+</sqlMap>

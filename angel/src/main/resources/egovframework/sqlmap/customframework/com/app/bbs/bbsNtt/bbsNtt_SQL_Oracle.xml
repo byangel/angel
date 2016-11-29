@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+
+
+<sqlMap namespace="Product">
+	<typeAlias alias="bbsNttVo" type="customframework.com.app.bbs.bbsNtt.service.BbsNttVo" />
+	
+	<sql id="bbsNttDao.select">
+		SELECT   bbs_id
+				,ntt_id
+				,parnts_ntt_id
+				,answer_ordr
+				,answer_level
+				,ntt_sj
+				,ntt_cn
+				,rdcnt
+				,atch_file_id
+				,use_at
+				,regist_dt
+				,register_id
+				,updt_dt
+				,updusr_id
+		FROM COMT_BBS_NTT
+	</sql>
+	
+	<sql id="bbsNttDao.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="bbs_id" prepend="AND">
+				bbs_id = #bbs_id#
+			</isNotEmpty>
+			<isNotEmpty property="searchCondition">
+				<isEqual  property="searchCondition" compareValue="NTT_SJ" prepend="AND">
+					ntt_sj            LIKE  '%'||#searchKeyword#||'%'
+				</isEqual>
+				<isEqual  property="searchCondition" compareValue="NTT_CN" prepend="AND">
+					ntt_cn            LIKE  '%'||#searchKeyword#||'%'
+				</isEqual>
+				<isEqual  property="searchCondition" compareValue="SJ_CN" prepend="AND">
+					(ntt_cn            LIKE  '%'||#searchKeyword#||'%'
+					OR ntt_sj            LIKE  '%'||#searchKeyword#||'%')
+				</isEqual>
+				<isEqual  property="searchCondition" compareValue="REGISTER" prepend="AND">
+					register_id            LIKE  '%'||#searchKeyword#||'%'
+				</isEqual>
+				<!-- 아이디 검색 또는 작성자 이름 검색 처리 -->
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					(   ntt_sj            LIKE  '%'||#searchKeyword#||'%'
+					 OR ntt_cn            LIKE  '%'||#searchKeyword#||'%'
+					 OR register_id   LIKE  '%'||#searchKeyword#||'%'
+					)
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		<isNotEmpty property="sortField">
+				ORDER BY $sortField$
+				<isNotEmpty property="oderType">
+					$oderType$
+				</isNotEmpty>
+		</isNotEmpty>
+		<isEmpty property="sortField">
+			ORDER BY regist_dt DESC
+		</isEmpty>
+	</sql>
+	
+	<!-- INSERT -->
+	<insert id="bbsNttDao.create" parameterClass="bbsNttVo" >
+		INSERT INTO COMT_BBS_NTT(bbs_id
+								,ntt_id
+								,parnts_ntt_id
+								,answer_ordr
+								,answer_level
+								,ntt_sj
+								,ntt_cn
+								,rdcnt
+								,atch_file_id
+								,use_at
+								,regist_dt
+								,register_id
+								,updt_dt
+								,updusr_id )VALUES( #bbs_id#
+														,#ntt_id#
+														,#parnts_ntt_id#
+														,#answer_ordr#
+														,#answer_level#
+														,#ntt_sj#
+														,#ntt_cn#
+														,0
+														,#atch_file_id#
+														,#use_at#
+														,SYSDATE
+														,#loginId#
+														,SYSDATE
+														,#loginId#)
+	</insert> 
+	
+	<!-- UPDATE -->
+	<update id="bbsNttDao.update" parameterClass="bbsNttVo" >
+		UPDATE COMT_BBS_NTT SET ntt_sj        = #ntt_sj#       
+								,ntt_cn        = #ntt_cn#       
+								,rdcnt         = #rdcnt#        
+								,atch_file_id  = #atch_file_id# 
+								,use_at        = #use_at#       
+								,updt_dt  = SYSDATE        
+								,updusr_id= #loginId#      
+		WHERE ntt_id = #ntt_id#	
+	</update>
+	
+	<update id="bbsNttDao.rdcntUpdate" >
+		UPDATE COMT_BBS_NTT SET ( rdcnt = (rdcnt+1) )
+		WHERE ntt_id = #ntt_id#	
+	</update>
+	
+	<!-- READ -->
+	<select id="bbsNttDao.read" resultClass="bbsNttVo" parameterClass="bbsNttVo">
+		<include refid="bbsNttDao.select"/>
+		WHERE ntt_id = #ntt_id#	
+	</select> 
+	
+	<!-- SELECT LIST -->
+	<select id="bbsNttDao.list"  resultClass="bbsNttVo" parameterClass="bbsNttVo">
+		SELECT * FROM (SELECT rownum rn, ALL_LIST.*  FROM (
+							<include refid="bbsNttDao.select"/>
+							<include refid="bbsNttDao.where"/>	
+						)ALL_LIST ) 
+		<isNotEqual property="pageIndex" compareValue="0">
+			WHERE rn BETWEEN #firstIndex# + 1 AND #firstIndex# + #recordCountPerPage#
+		</isNotEqual>
+	</select>
+	
+	
+	<select id="bbsNttDao.totalCount" resultClass="java.lang.Integer" parameterClass="bbsNttVo">
+		SELECT count(*) FROM COMT_BBS_NTT 
+		<include refid="bbsNttDao.where"/>	
+	</select>
+	
+	<!-- DELETE -->
+	<delete id="bbsNttDao.delete"  parameterClass="bbsNttVo" >
+		DELETE FROM COMT_BBS_NTT 
+		 WHERE ntt_id = #ntt_id#	
+	</delete>
+	                                         
+</sqlMap>

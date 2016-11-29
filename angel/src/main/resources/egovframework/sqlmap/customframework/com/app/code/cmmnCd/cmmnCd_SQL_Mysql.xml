@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+
+
+<sqlMap namespace="Product">
+	<typeAlias alias="cmmnCdVo" type="customframework.com.app.code.cmmnCd.service.CmmnCdVo" />
+	
+	<sql id="cmmnCdDao.select">
+		SELECT   cl_cd
+				,cd_id
+				,cd_id_nm
+				,cd_id_dc
+				,regist_dt
+				,updt_dt
+				,register_id
+				,updusr_id
+		FROM COMT_CMMN_CD
+	</sql>
+	
+	<insert id="cmmnCdDao.create" parameterClass="cmmnCdVo" >
+		INSERT INTO COMT_CMMN_CD(cl_cd
+								,cd_id
+								,cd_id_nm
+								,cd_id_dc
+								,regist_dt
+								,register_id
+								,updt_dt
+								,updusr_id) values(  #cl_cd#
+													,#cd_id#
+													,#cd_id_nm#
+													,#cd_id_dc#
+													,NOW()
+													,#loginId#
+													,NOW()
+													,#loginId#)
+	</insert> 
+	
+	
+	
+	<update id="cmmnCdDao.update" parameterClass="cmmnCdVo" >
+		UPDATE COMT_CMMN_CD SET cd_id_nm    = #cd_id_nm#
+								,cd_id_dc   = #cd_id_dc#
+								,updt_dt    = NOW()   
+								,updusr_id  = #loginId#
+		WHERE cd_id     = #cd_id#	
+	</update>
+	
+	<select id="cmmnCdDao.read" resultClass="cmmnCdVo" parameterClass="cmmnCdVo">
+		<include refid="cmmnCdDao.select"/>
+		WHERE cd_id     = #cd_id#	
+	</select> 
+	
+	<!-- 	
+	1. oracle 버전
+	Ex) search_column like '%'||#parameter_name#||'%' 
+	2. myssql 버전
+	Ex) search_column like concat('%', #parameter_name#, '%')
+	 -->
+	<sql id="cmmnCdDao.where">
+		<dynamic prepend="where">
+			<isNotEmpty property="searchCondition" >
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+			   		(   cl_cd     LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR cd_id     LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR cd_id_nm  LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR cd_id_dc  LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		)
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		
+		<isNotEmpty property="sortField">
+				   	 ORDER BY $sortField$
+				   	 <isNotEmpty property="oderType">
+				   	 	$oderType$
+				   	 </isNotEmpty>
+		</isNotEmpty>
+		<isEmpty property="sortField">
+			ORDER BY regist_dt DESC
+		</isEmpty>
+	</sql>
+	
+	<select id="cmmnCdDao.totalCount" resultClass="java.lang.Integer" parameterClass="cmmnCdVo">
+		SELECT count(*) FROM COMT_CMMN_CD 
+		 <include refid="cmmnCdDao.where"/>	
+	</select>
+	
+	<select id="cmmnCdDao.list"  resultClass="cmmnCdVo" parameterClass="cmmnCdVo">
+		
+		<include refid="cmmnCdDao.select"/>
+	   	<include refid="cmmnCdDao.where"/>	
+	   	
+		<isNotEqual property="pageIndex" compareValue="0">
+			LIMIT #recordCountPerPage# OFFSET #firstIndex#
+		</isNotEqual>
+	</select>
+	 
+	<delete id="cmmnCdDao.delete"  parameterClass="cmmnCdVo" >
+		DELETE FROM COMT_CMMN_CD 
+		 <dynamic prepend="WHERE">
+			<isNotEmpty property="cl_cd" prepend="AND">
+				cl_cd = #cl_cd#
+			</isNotEmpty>
+			<isNotEmpty property="cd_id" prepend="AND">
+				cd_id = #cd_id#
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	                                         
+</sqlMap>

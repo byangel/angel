@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+
+
+<sqlMap namespace="Product">
+	<typeAlias alias="detailCdVo" type="customframework.com.app.code.detailCd.service.DetailCdVo" />
+	
+	<sql id="detailCdDao.select">
+		SELECT * FROM(
+			SELECT detail_cd_id
+				  ,cd_id
+				  ,detail_cd
+				  ,detail_cd_nm
+				  ,detail_cd_dc
+				  ,detail_cd_eng_nm
+				  ,detail_cd_ordr 
+				  ,use_at
+				  ,upper_cd
+				  ,regist_dt
+				  ,updt_dt
+				  ,register_id
+				  ,updusr_id
+				  ,(SELECT cl_cd FROM COMT_CMMN_CD B WHERE A.cd_id=B.cd_id) AS cl_cd
+			FROM COMT_DETAIL_CD A
+		) C
+	</sql>
+	
+	<insert id="detailCdDao.create" parameterClass="detailCdVo" >
+		<selectKey keyProperty="detail_cd_id" resultClass="String">
+			SELECT NVL(MAX(detail_cd_id), 0)+1 AS detail_cd_id FROM COMT_DETAIL_CD
+		</selectKey>
+		INSERT INTO COMT_DETAIL_CD(detail_cd_id
+								  ,cd_id
+								  ,detail_cd
+								  ,detail_cd_nm
+								  ,detail_cd_dc
+								  ,detail_cd_eng_nm
+								  ,detail_cd_ordr 
+								  ,use_at
+								  ,upper_cd
+								  ,regist_dt
+								  ,register_id
+								  ,updt_dt
+								  ,updusr_id   ) values(  #detail_cd_id#
+														 ,#cd_id#
+														 ,#detail_cd#
+														 ,#detail_cd_nm#
+														 ,#detail_cd_dc#
+														 ,#detail_cd_eng_nm#
+														 ,#detail_cd_ordr# 
+														 ,#use_at#
+														 ,#upper_cd#
+														 ,SYSDATE
+														 ,#loginId#
+														 ,SYSDATE
+														 ,#loginId#)
+	</insert> 
+	
+	
+	
+	<update id="detailCdDao.update" parameterClass="detailCdVo" >
+		UPDATE COMT_DETAIL_CD SET detail_cd         = #detail_cd#  
+								 ,detail_cd_nm      = #detail_cd_nm#    
+								 ,detail_cd_dc      = #detail_cd_dc#    
+								 ,detail_cd_eng_nm  = #detail_cd_eng_nm#
+								 ,detail_cd_ordr    = #detail_cd_ordr#  
+								 ,use_at            = #use_at#          
+								 ,upper_cd          = #upper_cd#          
+								 ,updt_dt           = SYSDATE           
+								 ,updusr_id         = #loginId#        
+		WHERE  detail_cd_id     = #detail_cd_id#		
+	</update>
+	
+	<select id="detailCdDao.read" resultClass="detailCdVo" parameterClass="detailCdVo">
+		<include refid="detailCdDao.select"/>
+		WHERE detail_cd_id     = #detail_cd_id#	
+	</select> 
+	
+	<!-- 	
+	1. oracle 버전
+	Ex) search_column like '%'||#parameter_name#||'%' 
+	2. myssql 버전
+	Ex) search_column like concat('%', #parameter_name#, '%')
+	 -->
+	<sql id="detailCdDao.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="searchCondition" >
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+			   		(   cd_id            LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR detail_cd        LIKE  CONCAT('%',#searchKeyword#,'%') 
+			   		 OR detail_cd_nm     LIKE  CONCAT('%',#searchKeyword#,'%') 
+			   		 OR detail_cd_eng_nm LIKE  CONCAT('%',#searchKeyword#,'%') 
+			   		)
+				</isNotEmpty>
+			</isEmpty>
+			
+			<isNotEmpty property="cl_cd" prepend="AND">
+				cl_cd = #cl_cd#
+			</isNotEmpty>
+			<isNotEmpty property="cd_id" prepend="AND">
+				cd_id = #cd_id#
+			</isNotEmpty>
+		
+			<isNotEmpty property="sortField">
+					   	 ORDER BY $sortField$
+					   	 <isNotEmpty property="oderType">
+					   	 	$oderType$
+					   	 </isNotEmpty>
+			</isNotEmpty>
+		</dynamic>
+		<isEmpty property="sortField">
+			ORDER BY cl_cd, cd_id, detail_cd_ordr ASC , regist_dt DESC
+		</isEmpty>
+	</sql>
+	
+	<select id="detailCdDao.totalCount" resultClass="java.lang.Integer" parameterClass="detailCdVo">
+		SELECT count(*) FROM (<include refid="detailCdDao.select"/>) D
+		 <include refid="detailCdDao.where"/>
+	</select>
+	
+	<select id="detailCdDao.list"  resultClass="detailCdVo" parameterClass="detailCdVo">
+  
+       SELECT * FROM (SELECT rownum rn, ALL_LIST.*  FROM (
+						       <include refid="detailCdDao.select"/>
+							   <include refid="detailCdDao.where"/>	
+						  )ALL_LIST ) 
+		<isNotEqual property="pageIndex" compareValue="0">
+			WHERE rn BETWEEN #firstIndex# + 1 AND #firstIndex# + #recordCountPerPage#
+		</isNotEqual>
+      
+	</select>
+	 
+	<delete id="detailCdDao.delete"  parameterClass="detailCdVo" >
+		DELETE FROM COMT_DETAIL_CD 
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="cd_id" prepend="AND">
+				cd_id = #cd_id#
+			</isNotEmpty>
+			<isNotEmpty property="detail_cd_id" prepend="AND">
+				detail_cd_id = #detail_cd_id#
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	                                         
+</sqlMap>

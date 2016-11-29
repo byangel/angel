@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Product">
+
+	<typeAlias alias="caseMap" type="org.apache.commons.collections.map.CaseInsensitiveMap" />
+ 			
+ 	<sql id="AtchFile.select">
+		SELECT  atch_file_id
+			   ,file_id
+			   ,file_stre_path
+			   ,file_stre_nm
+			   ,file_extsn
+			   ,file_orignl_nm
+			   ,file_mg
+			   ,reg_dt
+			   ,reg_id
+		 FROM DB_RAD.SRO_FILE_DETAIL
+	</sql>
+	
+	<sql id="AtchFile.where">
+		<dynamic prepend="where">
+			<isNotEmpty property="atch_file_id" prepend="AND">
+		  		  atch_file_id = #atch_file_id#
+			</isNotEmpty>
+			<isNotEmpty property="file_id" prepend="AND">
+		  		  file_id = #file_id#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY file_id	
+	</sql>
+	
+ 	
+ 	<!-- 첨부 파일 목록을 구한다. -->
+ 	<select id="AtchFileDAO.detailList" parameterClass="LData" resultClass="caseMap" >
+		<include refid="AtchFile.select"/>
+		<include refid="AtchFile.where"/>	
+ 	</select>
+ 	
+ 	<!-- 파일 마스터 생성 -->
+	<insert id="AtchFileDAO.masterCreate" parameterClass="LData" >
+		<selectKey keyProperty="atch_file_id" resultClass="Integer">
+			SELECT NVL(MAX(atch_file_id), 0)+1 AS atch_file_id FROM   DB_RAD.SRO_FILE_MASTER
+		</selectKey>
+		<![CDATA[
+			INSERT INTO DB_RAD.SRO_FILE_MASTER ( atch_file_id
+												,use_at
+												,reg_dt
+												,reg_id)
+			VALUES ( #atch_file_id#
+					, 'Y'
+					, SYSDATE
+					, #loginId#)
+		]]>
+	</insert>
+	
+	<!-- 파일 상세 정보 생성 -->
+	<insert id="AtchFileDAO.detailCreate" parameterClass="LData" >
+		<selectKey keyProperty="file_id" resultClass="Integer">
+			SELECT NVL(MAX(file_id), 0)+1 AS file_id FROM   DB_RAD.SRO_FILE_DETAIL
+		</selectKey>
+		<![CDATA[
+			INSERT INTO DB_RAD.SRO_FILE_DETAIL (   atch_file_id
+										   , file_id
+										   , file_stre_path
+										   , file_stre_nm
+										   , file_orignl_nm
+										   , file_extsn
+										   , file_mg
+										   , reg_dt
+										   , reg_id)
+			VALUES (  #atch_file_id#
+			 		, #file_id#
+			 		, #file_stre_path#
+			 		, #file_stre_nm#
+			 		, #file_orignl_nm#
+			 		, #file_extsn#
+			 		, #file_mg#
+			 		, SYSDATE
+					, #loginId#)
+		]]>
+	</insert>	
+	
+	<!-- 파일 상세 정보  -->
+ 	<select id="AtchFileDAO.detailRead" parameterClass="LData" resultClass="caseMap" >
+			<include refid="AtchFile.select"/>
+			WHERE  file_id = #file_id#	
+ 	</select>
+ 	
+	<!-- 파일 상세 정보 삭제 -->
+	<delete id="AtchFileDAO.detailDelete" parameterClass="LData" >
+			DELETE FROM DB_RAD.SRO_FILE_DETAIL
+			 WHERE file_id = #file_id#
+	</delete>
+	<!--  atch_file_id 해당 파일정보 모두 삭제.-->
+	<delete id="AtchFileDAO.detailAollDelete" parameterClass="LData" >
+			DELETE FROM DB_RAD.SRO_FILE_DETAIL
+			 WHERE atch_file_id = #atch_file_id#
+	</delete>
+	
+	<!-- 파일 마스터 삭제 - 파일 상세 테이블에 자식 데이타 없어야 삭제 가능 -->
+	<delete id="AtchFileDAO.MasterDelete" parameterClass="LData" >
+		<![CDATA[
+			DELETE FROM  DB_RAD.SRO_FILE_MASTER
+			 WHERE atch_file_id = #atch_file_id#
+		]]>
+	</delete>
+	
+	<!--Item 삭제시 사용. 파일 마스터 사용 여부 use_at 업데이트 -->
+ 	<update id="AtchFileDAO.masterUseAtUpdate" parameterClass="LData" >
+		<![CDATA[
+			UPDATE DB_RAD.SRO_FILE_MASTER
+			   SET use_at = 'N'
+			 WHERE atch_file_id = #atch_file_id#
+		]]>
+	</update>
+	
+</sqlMap>

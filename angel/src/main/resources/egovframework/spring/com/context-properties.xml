@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    					http://www.springframework.org/schema/util
+    					http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+    <!-- 프로퍼티 정보 설정 -->
+    <bean name="propertiesService" class="egovframework.rte.fdl.property.impl.EgovPropertyServiceImpl" destroy-method="destroy">
+        <property name="properties">
+            <map>
+                <entry key="pageUnit" value="10"/>
+                <entry key="pageSize" value="10"/>
+                <entry key="posblAtchFileSize" value="5242880"/>
+                <entry key="Globals.fileStorePath" value="/user/file/sht/"/>
+                <entry key="Globals.addedOptions" value="false"/>
+            </map>
+        </property>
+    </bean>
+    
+    
+    <!-- 환경설정 기본정보를 globals.properties 에서 참조하도록 propertyConfigurer 설정  -->
+    <!-- <bean id="propertyConfigurer"  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/egovframework/egovProps/globals.properties</value>
+                value>file:/product/jeus/egovProps/globals.properties</value
+            </list>
+        </property>
+    </bean> -->
+    <!-- java 에서 프로퍼티 사용-->
+    <util:properties id="appConfig" location="classpath:/egovframework/egovProps/globals.properties" />
+    
+    <!-- 프로퍼티 파일 위치 설정 -->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:/egovframework/message/com/message-common</value>
+                <value>classpath:/egovframework/rte/fdl/idgnr/messages/idgnr</value>
+                <value>classpath:/egovframework/rte/fdl/property/messages/properties</value>
+                <value>classpath:/egovframework/egovProps/globals</value><!-- 214-005-26 추가함 -->
+            </list>
+        </property>
+        <property name="cacheSeconds">
+            <value>60</value>
+        </property>
+    </bean>
+    
+    
+     <!-- 메시지소스빈 설정 - 구현할때는 위의 프로퍼티를 사용한다.
+           기 빈 클래스는eGov 에서 사용하기때문에 선언을 안해주면 에러나기때문에 설정을 유지한다.-->
+    <bean id="egovMessageSource" class="egovframework.com.cmm.EgovMessageSource">
+        <property name="reloadableResourceBundleMessageSource">
+            <ref bean="messageSource" />
+        </property> 
+    </bean>
+</beans>    

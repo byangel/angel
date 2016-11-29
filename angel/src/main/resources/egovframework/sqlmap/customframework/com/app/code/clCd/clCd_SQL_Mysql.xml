@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+
+
+<sqlMap namespace="Product">
+	<typeAlias alias="clCdVo" type="customframework.com.app.code.clCd.service.ClCdVo" />
+	
+	<sql id="clCdDao.select">
+		SELECT   cl_cd
+				,cl_cd_nm
+				,cl_cd_dc
+				,regist_dt
+				,updt_dt
+				,register_id
+				,updusr_id
+		FROM COMT_CL_CD
+	</sql>
+	
+	<insert id="clCdDao.create" parameterClass="clCdVo" >
+		INSERT INTO COMT_CL_CD(  cl_cd
+								,cl_cd_nm
+								,cl_cd_dc
+								,regist_dt
+								,register_id
+								,updt_dt
+								,updusr_id) values( #cl_cd#
+														,#cl_cd_nm#
+														,#cl_cd_dc#
+														,NOW()
+														,#loginId#
+														,NOW()
+														,#loginId#)
+	</insert> 
+	
+	
+	
+	<update id="clCdDao.update" parameterClass="clCdVo" >
+		UPDATE COMT_CL_CD SET  cl_cd_nm     = #cl_cd_nm#
+								,cl_cd_dc   = #cl_cd_dc#
+								,updt_dt    = SYSDATE   
+								,updusr_id  = #loginId#
+		WHERE cl_cd = #cl_cd#	
+	</update>
+	
+	<select id="clCdDao.read" resultClass="clCdVo" parameterClass="clCdVo">
+		<include refid="clCdDao.select"/>
+		WHERE cl_cd     = #cl_cd#	
+	</select> 
+	
+	<!-- 	
+	1. oracle 버전
+	Ex) search_column like '%'||#parameter_name#||'%' 
+	2. myssql 버전
+	Ex) search_column like concat('%', #parameter_name#, '%')
+	 -->
+	<sql id="clCdDao.where">
+		<dynamic prepend="where">
+			<isNotEmpty property="searchCondition" >
+			</isNotEmpty>
+			<isEmpty  property="searchCondition" >
+				<isNotEmpty property="searchKeyword" prepend="AND">
+			   		(   cl_cd            LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR cl_cd_nm         LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		 OR cl_cd_dc         LIKE  CONCAT('%',#searchKeyword#,'%')
+			   		)
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		
+		<isNotEmpty property="sortField">
+				   	 ORDER BY $sortField$
+				   	 <isNotEmpty property="oderType">
+				   	 	$oderType$
+				   	 </isNotEmpty>
+		</isNotEmpty>
+		<isEmpty property="sortField">
+			ORDER BY regist_dt DESC
+		</isEmpty>
+	</sql>
+	
+	<select id="clCdDao.totalCount" resultClass="java.lang.Integer" parameterClass="clCdVo">
+		SELECT count(*) FROM COMT_CL_CD 
+		 <include refid="clCdDao.where"/>	
+	</select>
+	
+	<select id="clCdDao.list"  resultClass="clCdVo" parameterClass="clCdVo">
+  
+		<include refid="clCdDao.select"/>
+	   	<include refid="clCdDao.where"/>	
+	   	
+		<isNotEqual property="pageIndex" compareValue="0">
+			LIMIT #recordCountPerPage# OFFSET #firstIndex#
+		</isNotEqual>
+	</select>
+	 
+	<delete id="clCdDao.delete"  parameterClass="clCdVo" >
+		DELETE FROM COMT_CL_CD 
+		 WHERE cl_cd = #cl_cd#	
+	</delete>
+	                                         
+</sqlMap>

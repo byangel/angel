@@ -3,11 +3,13 @@ package customframework.com.cmm.init.saa.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import customframework.com.cmm.init.saa.service.InitDataProvider;
+import customframework.com.cmm.init.saa.service.PropStrategy;
 
 /**
  * AppScopeInit 서비스의 프로바이더 클래스
@@ -26,7 +28,7 @@ import customframework.com.cmm.init.saa.service.InitDataProvider;
  * 
  * </pre>
  */
-public class CodeDataProviderImpl  extends JdbcDaoSupport implements InitDataProvider{
+public class CodeStrategyImpl  extends JdbcDaoSupport implements PropStrategy{
 
 	
 	private String findCodeIdSql;

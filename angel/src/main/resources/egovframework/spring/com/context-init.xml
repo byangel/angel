@@ -21,7 +21,7 @@
 	/>
 	
 	<!-- 코드 데이타 제공자 -->
-	<bean id="codeStrategyImpl" class="customframework.com.cmm.init.saa.service.impl.CodeStrategyImpl" 
+	<bean id="codeStrategyImpl" class="customframework.com.cmm.init.saa.service.impl.CodeStrategyImpl"  
 		p:dataSource-ref="dataSource" 
 		p:findCodeIdSql="SELECT cd_id FROM COMT_CMMN_CD"
 		p:findDetailCodeSql="SELECT  cd_id

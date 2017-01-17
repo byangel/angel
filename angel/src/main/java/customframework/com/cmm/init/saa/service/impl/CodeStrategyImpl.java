@@ -31,7 +31,7 @@ import customframework.com.cmm.init.saa.service.PropStrategy;
 public class CodeStrategyImpl  extends JdbcDaoSupport implements PropStrategy{
 
 	
-	private String findCodeIdSql;
+	private String findCodeIdSql;  
 	private String findDetailCodeSql;
 	
 	@Required

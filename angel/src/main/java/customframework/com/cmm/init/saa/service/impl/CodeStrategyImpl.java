@@ -12,9 +12,9 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import customframework.com.cmm.init.saa.service.PropStrategy;
 
 /**
- * AppScopeInit 서비스의 프로바이더 클래스
+ * 
  * <p>
- * <b>NOTE</b>: 이 프로바이더 클래스를 통해 실제  어플리케이션 영역에 저장할 데이타를 가공하여 리턴시킨다.
+ * <b>NOTE</b>: 코드 데이타를 맵에 담아서 리턴한다.
  * 
  * @author 김용성
  * @since 2012.08.27
